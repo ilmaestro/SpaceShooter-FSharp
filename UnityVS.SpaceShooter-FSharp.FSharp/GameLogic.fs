@@ -12,3 +12,9 @@ module GameLogic =
         let velocity = (movement * speed * deltaTime)
         let rotation = Quaternion.Euler(0.0f, 0.0f, rigidbody.velocity.x * -tilt)
         (position, velocity, rotation)
+
+    let playerFire (shot : GameObject) (shotSpawn: Transform) fireRate (time : float32) nextFire = 
+        if time >= nextFire then 
+            GameObject.Instantiate(shot, shotSpawn.position, Quaternion.identity) |> ignore
+            time + fireRate
+        else nextFire

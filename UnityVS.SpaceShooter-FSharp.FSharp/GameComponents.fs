@@ -7,19 +7,14 @@ type PlayerController() =
 
     [<SerializeField>]
     [<DefaultValue>] val mutable speed : float32
-
     [<SerializeField>]
     [<DefaultValue>] val mutable tilt : float32
-
     [<SerializeField>]
     [<DefaultValue>] val mutable fireRate : float32
-
     [<SerializeField>]
     [<DefaultValue>] val mutable boundary : GameTypes.Vector3Boundary
-
     [<SerializeField>]
     [<DefaultValue>] val mutable shot : GameObject
-
     [<SerializeField>]
     [<DefaultValue>] val mutable shotSpawn : Transform
 
@@ -43,12 +38,13 @@ type PlayerController() =
     member this.Awake() =
         let transform = this.GetComponent<Transform>()
         let rigidbody = this.GetComponent<Rigidbody>()
-        
+        //start the fixed update workflow
         let fixedWF = async {
             do! this.StartAsync()
+            let playerCtrlr = GameLogic.playerControl rigidbody this.boundary this.speed this.tilt
             let rec gameloop() = async {
                 let! deltaTime = this.FixedUpdateAsync()
-                let (pos, vel, rot) = GameLogic.playerControl rigidbody this.boundary this.speed this.tilt deltaTime
+                let (pos, vel, rot) = playerCtrlr deltaTime
                 rigidbody.position <- pos
                 rigidbody.velocity <- vel
                 rigidbody.rotation <- rot
@@ -56,22 +52,19 @@ type PlayerController() =
             }
             return! gameloop()
         }
-        fixedWF |> Async.StartImmediate |> ignore
-
+        //start the Firing workflow
         let fireWF = async {
             do! this.StartAsync()
+            let fireCtrlr = GameLogic.playerFire this.shot this.shotSpawn this.fireRate
             let rec fireloop(nextFire) = async {
                 let! time = this.FireAsync()
-                let nextfiretime =
-                    if time >= nextFire then 
-                        GameObject.Instantiate(this.shot, this.shotSpawn.position, Quaternion.identity) |> ignore
-                        time + this.fireRate
-                    else nextFire
+                let nextfiretime = fireCtrlr time nextFire
                 return! fireloop(nextfiretime)
             }
             return! fireloop(0.0f)
         }
-        fireWF |> Async.StartImmediate |> ignore
+        fixedWF |> Async.StartImmediate |> ignore
+        fireWF  |> Async.StartImmediate |> ignore
 
 
 type Mover() = 
