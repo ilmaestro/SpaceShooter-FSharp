@@ -52,8 +52,8 @@
   <ItemGroup>
     <Compile Include="Infrastructure.fs" />
     <Compile Include="GameTypes.fs" />
-    <Compile Include="GameComponents.fs" />
     <Compile Include="GameLogic.fs" />
+    <Compile Include="GameComponents.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

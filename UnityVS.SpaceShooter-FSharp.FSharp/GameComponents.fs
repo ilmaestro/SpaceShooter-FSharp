@@ -48,15 +48,10 @@ type PlayerController() =
             do! this.StartAsync()
             let rec gameloop() = async {
                 let! deltaTime = this.FixedUpdateAsync()
-                let moveHorizontal = Input.GetAxis("Horizontal")
-                let moveVertical = Input.GetAxis("Vertical")
-                let movement = new Vector3(moveHorizontal, 0.0f, moveVertical)
-                let (xMin, xMax, _, _, zMin, zMax) = this.boundary.GetBoundary()
-                let position = new Vector3(Mathf.Clamp(rigidbody.position.x, xMin, xMax), 0.0f, Mathf.Clamp(rigidbody.position.z, zMin, zMax))
-
-                rigidbody.velocity <- (movement * this.speed * deltaTime)
-                rigidbody.position <- position
-                rigidbody.rotation <- Quaternion.Euler(0.0f, 0.0f, rigidbody.velocity.x * -this.tilt)
+                let (pos, vel, rot) = GameLogic.playerControl rigidbody this.boundary this.speed this.tilt deltaTime
+                rigidbody.position <- pos
+                rigidbody.velocity <- vel
+                rigidbody.rotation <- rot
                 return! gameloop()
             }
             return! gameloop()
