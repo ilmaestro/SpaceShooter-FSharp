@@ -3,6 +3,8 @@ open UnityEngine
 open System
 
 module GameLogic =
+    open System.Collections
+
     let playerControl (rigidbody : Rigidbody) (boundary : GameTypes.Vector3Boundary) speed tilt deltaTime =
         let moveHorizontal = Input.GetAxis("Horizontal")
         let moveVertical = Input.GetAxis("Vertical")
@@ -18,3 +20,17 @@ module GameLogic =
             GameObject.Instantiate(shot, shotSpawn.position, Quaternion.identity) |> ignore
             time + fireRate
         else nextFire
+
+    let randomSpawner (hazard : GameObject) (speed : float32) (xRange : float32) (zValue : float32) =
+        let pos = new Vector3(Random.Range(-xRange,xRange),0.0f, zValue)
+        GameObject.Instantiate(hazard, pos, Quaternion.identity) :?> GameObject
+        
+    let spawnWaves (spawner : unit -> unit) count startWait spawnWait waveWait =
+        seq {
+            yield WaitForSeconds (startWait)
+            while true do
+                for i in 1 .. count do
+                    spawner()
+                    yield WaitForSeconds (spawnWait)
+                yield WaitForSeconds (waveWait)
+        } :?> IEnumerator
