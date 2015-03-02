@@ -13,7 +13,6 @@ type DestroyByTime() =
     member this.Start()=
         GameObject.Destroy(this.gameObject, lifetime)
 
-
 type RandomRotator() =
     inherit MonoBehaviour()
 
@@ -37,8 +36,6 @@ type DestroyByBoundary() =
 
     member this.OnTriggerExit(other : Collider) =
         GameObject.Destroy(other.gameObject)
-
-
 
 type PlayerController() = 
     inherit MonoBehaviour()
@@ -174,18 +171,13 @@ type GameController() =
 
     member this.SpawnWaves() =
         let spawner() = 
-            let go = GameLogic.randomSpawner this.hazard speed this.spawnPosition.x this.spawnPosition.z
-            let mover = go.GetComponent<Mover>()
-            mover.speed <- Random.Range(-10.0f, mover.speed)
-
-        let isGameOver() =
-            gameState = GameOver
+            GameLogic.randomSpawner this.hazard speed this.spawnPosition.x this.spawnPosition.z |> ignore
 
         let restart() =
             uiHelper.SetRestartActive(true)
             gameState <- Restarting
 
-        GameLogic.spawnWaves spawner hazardCount startWait spawnWait waveWait isGameOver restart
+        GameLogic.spawnWaves spawner hazardCount startWait spawnWait waveWait (fun () -> gameState = GameOver) restart
 
     member this.GetScore(state) =
         match state with
@@ -203,10 +195,6 @@ type GameController() =
     member public this.PlayerDestroyed() =
         uiHelper.SetGameOverActive(true)
         gameState <- GameOver
-
-
-
-
 
 
 type DestroyByContact() =
