@@ -2,4 +2,8 @@
 open UnityEngine
 open System
 
-type MinMax = float32 * float32
+type GameState =
+    | Scoring of int
+    | Restarting
+    | GameOver
+    

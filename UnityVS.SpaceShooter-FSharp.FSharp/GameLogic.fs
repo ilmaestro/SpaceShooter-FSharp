@@ -25,12 +25,13 @@ module GameLogic =
         let pos = new Vector3(Random.Range(-xRange,xRange),0.0f, zValue)
         GameObject.Instantiate(hazard, pos, Quaternion.identity) :?> GameObject
         
-    let spawnWaves (spawner : unit -> unit) count startWait spawnWait waveWait =
+    let spawnWaves (spawner : unit -> unit) count startWait spawnWait waveWait (isGameOver : unit -> bool) (restart : unit -> unit) =
         seq {
             yield WaitForSeconds (startWait)
-            while true do
+            while not (isGameOver()) do
                 for i in 1 .. count do
                     spawner()
                     yield WaitForSeconds (spawnWait)
                 yield WaitForSeconds (waveWait)
+            restart()
         } :?> IEnumerator

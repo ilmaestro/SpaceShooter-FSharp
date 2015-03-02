@@ -1,5 +1,6 @@
 ﻿namespace UnityVS.SpaceShooter_FSharp.FSharp
 open UnityEngine
+open UnityEngine.UI
 open System
 
 
@@ -12,27 +13,6 @@ type DestroyByTime() =
     member this.Start()=
         GameObject.Destroy(this.gameObject, lifetime)
 
-type DestoryByContact() =
-    inherit MonoBehaviour()
-
-    [<SerializeField>]
-    [<DefaultValue>] val mutable explosion : GameObject
-
-    [<SerializeField>]
-    [<DefaultValue>] val mutable playerExplosion : GameObject
-
-    member this.OnTriggerEnter(other : Collider) =
-        match other.tag with
-        | "Boundary" -> ()
-        | "Player" ->
-            GameObject.Instantiate(this.playerExplosion, other.transform.position, other.transform.rotation) |> ignore
-            GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
-            GameObject.Destroy(other.gameObject)
-            GameObject.Destroy(this.gameObject)
-        | _ ->
-            GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
-            GameObject.Destroy(other.gameObject)
-            GameObject.Destroy(this.gameObject)
 
 type RandomRotator() =
     inherit MonoBehaviour()
@@ -125,6 +105,30 @@ type PlayerController() =
         fireWF  |> Async.StartImmediate |> ignore
 
 
+type UIHelper() =
+    inherit MonoBehaviour()
+
+    [<SerializeField>]
+    let mutable scoreText = Unchecked.defaultof<Text>
+    [<SerializeField>]
+    let mutable gameOverText = Unchecked.defaultof<Text>
+    [<SerializeField>]
+    let mutable restartText = Unchecked.defaultof<Text>
+
+    member this.Start() =
+        gameOverText.enabled <- false
+        restartText.enabled <- false
+
+    member public this.UpdateScore(score) =
+        scoreText.text <- "Score: " + score
+
+    member public this.SetGameOverActive(isActive) =
+        gameOverText.enabled <- isActive
+
+    member public this.SetRestartActive(isActive) =
+        restartText.enabled <- isActive
+
+
 type GameController() =
     inherit MonoBehaviour()
 
@@ -148,14 +152,95 @@ type GameController() =
 
     [<SerializeField>]
     let mutable waveWait = Unchecked.defaultof<float32>
+    
+    [<SerializeField>]
+    let mutable canvas = Unchecked.defaultof<Canvas>
+
+    let mutable uiHelper = Unchecked.defaultof<UIHelper>
+    let mutable gameState = Unchecked.defaultof<GameState>
+    
+    member this.Awake() =
+        uiHelper <- canvas.GetComponent<UIHelper>()
 
     member this.Start() =
+        gameState <- Scoring(0)
+        uiHelper.UpdateScore("0")
         this.SpawnWaves()
+
+    member this.Update() =
+        match gameState with
+        | Restarting when Input.GetKeyDown(KeyCode.R) -> this.Restart()
+        | _ -> ()
 
     member this.SpawnWaves() =
         let spawner() = 
             let go = GameLogic.randomSpawner this.hazard speed this.spawnPosition.x this.spawnPosition.z
             let mover = go.GetComponent<Mover>()
-            mover.speed <- Random.Range(1.0f, mover.speed)
+            mover.speed <- Random.Range(-10.0f, mover.speed)
 
-        GameLogic.spawnWaves spawner hazardCount startWait spawnWait waveWait
+        let isGameOver() =
+            gameState = GameOver
+
+        let restart() =
+            uiHelper.SetRestartActive(true)
+            gameState <- Restarting
+
+        GameLogic.spawnWaves spawner hazardCount startWait spawnWait waveWait isGameOver restart
+
+    member this.GetScore(state) =
+        match state with
+        | Scoring(x) -> x
+        | _ -> 0
+
+    member this.Restart() : unit =
+        Application.LoadLevel(Application.loadedLevel)
+
+    member public this.DestroyedHazard(scoredPoints) =
+        let score = this.GetScore(gameState) + scoredPoints
+        gameState <- Scoring(score)
+        uiHelper.UpdateScore(score.ToString())
+
+    member public this.PlayerDestroyed() =
+        uiHelper.SetGameOverActive(true)
+        gameState <- GameOver
+
+
+
+
+
+
+type DestroyByContact() =
+    inherit MonoBehaviour()
+
+    [<SerializeField>]
+    [<DefaultValue>] val mutable explosion : GameObject
+
+    [<SerializeField>]
+    [<DefaultValue>] val mutable playerExplosion : GameObject
+
+    [<SerializeField>]
+    [<DefaultValue>] val mutable scorePoints : int
+
+
+    let mutable gameController = Unchecked.defaultof<GameController>
+
+    member this.Awake() =
+        let gcObject = GameObject.FindWithTag("GameController")
+        if not (gcObject = null) then gameController <- gcObject.GetComponent<GameController>()
+
+    member this.OnTriggerEnter(other : Collider) =
+        match other.tag with
+        | "Boundary" -> ()
+        | "Hazard" -> ()
+        | "Player" ->
+            gameController.PlayerDestroyed()
+            GameObject.Instantiate(this.playerExplosion, other.transform.position, other.transform.rotation) |> ignore
+            GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
+            GameObject.Destroy(other.gameObject)
+            GameObject.Destroy(this.gameObject)
+        | _ ->
+            gameController.DestroyedHazard(this.scorePoints)
+            GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
+            GameObject.Destroy(other.gameObject)
+            GameObject.Destroy(this.gameObject)
+
