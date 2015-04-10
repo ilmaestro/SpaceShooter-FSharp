@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>C:\Users\rkilkenny\Devspace\Unity\SpaceShooter-FSharp\Assets\bin\</OutputPath>
+    <OutputPath>C:\Users\Ryan\Devspace\SpaceShooter-FSharp\Assets\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Debug\UnityVS.SpaceShooter_FSharp.FSharp.XML</DocumentationFile>
@@ -41,15 +41,15 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEditor">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Unity\Editor\Data\UnityExtensions\Unity\GUISystem\4.6.2\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\Unity\Editor\Data\UnityExtensions\Unity\GUISystem\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
