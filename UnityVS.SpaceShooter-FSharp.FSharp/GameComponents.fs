@@ -20,8 +20,7 @@ type RandomRotator() =
     [<DefaultValue>] val mutable tumble : float32
 
     member this.Start() =
-        let rb = this.GetComponent<Rigidbody>()
-        rb.angularVelocity <- Random.insideUnitSphere * this.tumble
+        this.GetComponent<Rigidbody>().angularVelocity <- Random.insideUnitSphere * this.tumble
 
 type Mover() = 
     inherit MonoBehaviour()
@@ -30,8 +29,7 @@ type Mover() =
     [<DefaultValue>] val mutable speed : float32
 
     member this.Start() =
-        let rb = this.GetComponent<Rigidbody>()
-        rb.velocity <- this.transform.forward * this.speed
+        this.GetComponent<Rigidbody>().velocity <- this.transform.forward * this.speed
 
 type DestroyByBoundary() =
     inherit MonoBehaviour()
