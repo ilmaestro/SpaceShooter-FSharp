@@ -40,18 +40,12 @@ type DestroyByBoundary() =
 type PlayerController() = 
     inherit MonoBehaviour()
 
-    [<SerializeField>]
-    [<DefaultValue>] val mutable speed : float32
-    [<SerializeField>]
-    [<DefaultValue>] val mutable tilt : float32
-    [<SerializeField>]
-    [<DefaultValue>] val mutable fireRate : float32
-    [<SerializeField>]
-    [<DefaultValue>] val mutable boundary : GameTypes.Vector3Boundary
-    [<SerializeField>]
-    [<DefaultValue>] val mutable shot : GameObject
-    [<SerializeField>]
-    [<DefaultValue>] val mutable shotSpawn : Transform
+    [<SerializeField>][<DefaultValue>] val mutable speed : float32
+    [<SerializeField>][<DefaultValue>] val mutable tilt : float32
+    [<SerializeField>][<DefaultValue>] val mutable fireRate : float32
+    [<SerializeField>][<DefaultValue>] val mutable boundary : GameTypes.Vector3Boundary
+    [<SerializeField>][<DefaultValue>] val mutable shot : GameObject
+    [<SerializeField>][<DefaultValue>] val mutable shotSpawn : Transform
 
     let startEvt = Event<_>()
     let fixedEvt = Event<_>()
