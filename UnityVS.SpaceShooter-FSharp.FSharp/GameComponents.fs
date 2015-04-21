@@ -16,8 +16,7 @@ type DestroyByTime() =
 type RandomRotator() =
     inherit MonoBehaviour()
 
-    [<SerializeField>]
-    [<DefaultValue>] val mutable tumble : float32
+    [<SerializeField>][<DefaultValue>] val mutable tumble : float32
 
     member this.Start() =
         this.GetComponent<Rigidbody>().angularVelocity <- Random.insideUnitSphere * this.tumble
@@ -25,8 +24,7 @@ type RandomRotator() =
 type Mover() = 
     inherit MonoBehaviour()
 
-    [<SerializeField>]
-    [<DefaultValue>] val mutable speed : float32
+    [<SerializeField>][<DefaultValue>] val mutable speed : float32
 
     member this.Start() =
         this.GetComponent<Rigidbody>().velocity <- this.transform.forward * this.speed
@@ -52,7 +50,7 @@ type PlayerController() =
     let fireEvt  = Event<_>()
 
     member this.Start() =
-        startEvt.Trigger()        
+        startEvt.Trigger()  
 
     member this.Update() =
         if Input.GetButton("Fire1") then fireEvt.Trigger(Time.time)
@@ -123,55 +121,39 @@ type UIHelper() =
 type GameController() =
     inherit MonoBehaviour()
 
-    [<SerializeField>]
-    [<DefaultValue>] val mutable hazard : GameObject
-
-    [<SerializeField>]
-    [<DefaultValue>] val mutable spawnPosition : Vector3
-
-    [<SerializeField>]
-    let mutable speed = Unchecked.defaultof<float32>
-
-    [<SerializeField>]
-    let mutable hazardCount = Unchecked.defaultof<int>
-
-    [<SerializeField>]
-    let mutable spawnWait = Unchecked.defaultof<float32>
-
-    [<SerializeField>]
-    let mutable startWait = Unchecked.defaultof<float32>
-
-    [<SerializeField>]
-    let mutable waveWait = Unchecked.defaultof<float32>
-    
-    [<SerializeField>]
-    let mutable canvas = Unchecked.defaultof<Canvas>
-
-    let mutable uiHelper = Unchecked.defaultof<UIHelper>
-    let mutable gameState = Unchecked.defaultof<GameState>
+    [<SerializeField>][<DefaultValue>] val mutable hazard : GameObject
+    [<SerializeField>][<DefaultValue>] val mutable spawnPosition : Vector3
+    [<SerializeField>][<DefaultValue>] val mutable speed : float32
+    [<SerializeField>][<DefaultValue>] val mutable hazardCount : int
+    [<SerializeField>][<DefaultValue>] val mutable spawnWait : float32
+    [<SerializeField>][<DefaultValue>] val mutable startWait : float32
+    [<SerializeField>][<DefaultValue>] val mutable waveWait : float32
+    [<SerializeField>][<DefaultValue>] val mutable canvas : Canvas
+    [<SerializeField>][<DefaultValue>] val mutable uiHelper : UIHelper
+    [<SerializeField>][<DefaultValue>] val mutable gameState : GameState
     
     member this.Awake() =
-        uiHelper <- canvas.GetComponent<UIHelper>()
+        this.uiHelper <- this.canvas.GetComponent<UIHelper>()
 
     member this.Start() =
-        gameState <- Scoring(0)
-        uiHelper.UpdateScore("0")
+        this.gameState <- Scoring(0)
+        this.uiHelper.UpdateScore("0")
         this.SpawnWaves()
 
     member this.Update() =
-        match gameState with
+        match this.gameState with
         | Restarting when Input.GetKeyDown(KeyCode.R) -> this.Restart()
         | _ -> ()
 
     member this.SpawnWaves() =
         let spawner() = 
-            GameLogic.randomSpawner this.hazard speed this.spawnPosition.x this.spawnPosition.z |> ignore
+            GameLogic.randomSpawner this.hazard this.speed this.spawnPosition.x this.spawnPosition.z |> ignore
 
         let restart() =
-            uiHelper.SetRestartActive(true)
-            gameState <- Restarting
+            this.uiHelper.SetRestartActive(true)
+            this.gameState <- Restarting
 
-        GameLogic.spawnWaves spawner hazardCount startWait spawnWait waveWait (fun () -> gameState = GameOver) restart
+        GameLogic.spawnWaves spawner this.hazardCount this.startWait this.spawnWait this.waveWait (fun () -> this.gameState = GameOver) restart
 
     member this.GetScore(state) =
         match state with
@@ -182,27 +164,21 @@ type GameController() =
         Application.LoadLevel(Application.loadedLevel)
 
     member public this.DestroyedHazard(scoredPoints) =
-        let score = this.GetScore(gameState) + scoredPoints
-        gameState <- Scoring(score)
-        uiHelper.UpdateScore(score.ToString())
+        let score = this.GetScore(this.gameState) + scoredPoints
+        this.gameState <- Scoring(score)
+        this.uiHelper.UpdateScore(score.ToString())
 
     member public this.PlayerDestroyed() =
-        uiHelper.SetGameOverActive(true)
-        gameState <- GameOver
+        this.uiHelper.SetGameOverActive(true)
+        this.gameState <- GameOver
 
 
 type DestroyByContact() =
     inherit MonoBehaviour()
 
-    [<SerializeField>]
-    [<DefaultValue>] val mutable explosion : GameObject
-
-    [<SerializeField>]
-    [<DefaultValue>] val mutable playerExplosion : GameObject
-
-    [<SerializeField>]
-    [<DefaultValue>] val mutable scorePoints : int
-
+    [<SerializeField>][<DefaultValue>] val mutable explosion : GameObject
+    [<SerializeField>][<DefaultValue>] val mutable playerExplosion : GameObject
+    [<SerializeField>][<DefaultValue>] val mutable scorePoints : int
 
     let mutable gameController = Unchecked.defaultof<GameController>
 
