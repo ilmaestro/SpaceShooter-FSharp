@@ -3,7 +3,9 @@ open UnityEngine
 open UnityEngine.UI
 open System
 
-
+// ------------------------------------------------------------------------------------------------
+// Destory a gameobject after a given lifetime in seconds
+// ------------------------------------------------------------------------------------------------
 type DestroyByTime() =
     inherit MonoBehaviour()
 
@@ -13,6 +15,9 @@ type DestroyByTime() =
     member this.Start()=
         GameObject.Destroy(this.gameObject, lifetime)
 
+// ------------------------------------------------------------------------------------------------
+// Randomly set the rigidbody's angularVelocity
+// ------------------------------------------------------------------------------------------------
 type RandomRotator() =
     inherit MonoBehaviour()
 
@@ -21,6 +26,9 @@ type RandomRotator() =
     member this.Start() =
         this.GetComponent<Rigidbody>().angularVelocity <- Random.insideUnitSphere * this.tumble
 
+// ------------------------------------------------------------------------------------------------
+// Set the rigidbody velocity based on speed in the FORWARD direction
+// ------------------------------------------------------------------------------------------------
 type Mover() = 
     inherit MonoBehaviour()
 
@@ -29,12 +37,18 @@ type Mover() =
     member this.Start() =
         this.GetComponent<Rigidbody>().velocity <- this.transform.forward * this.speed
 
+// ------------------------------------------------------------------------------------------------
+// Destroy the object if it goes outside the boundary
+// ------------------------------------------------------------------------------------------------
 type DestroyByBoundary() =
     inherit MonoBehaviour()
 
     member this.OnTriggerExit(other : Collider) =
         GameObject.Destroy(other.gameObject)
 
+// ------------------------------------------------------------------------------------------------
+// Handle player movement and fireing
+// ------------------------------------------------------------------------------------------------
 type PlayerController() = 
     inherit MonoBehaviour()
 
@@ -87,7 +101,9 @@ type PlayerController() =
         fixedWF |> Async.StartImmediate |> ignore
         fireWF  |> Async.StartImmediate |> ignore
 
-
+// ------------------------------------------------------------------------------------------------
+// Update scoring and game text on the screen
+// ------------------------------------------------------------------------------------------------
 type UIHelper() =
     inherit MonoBehaviour()
 
@@ -111,7 +127,9 @@ type UIHelper() =
     member public this.SetRestartActive(isActive) =
         restartText.enabled <- isActive
 
-
+// ------------------------------------------------------------------------------------------------
+// Main game state controller
+// ------------------------------------------------------------------------------------------------
 type GameController() =
     inherit MonoBehaviour()
 
@@ -166,7 +184,9 @@ type GameController() =
         this.uiHelper.SetGameOverActive(true)
         this.gameState <- GameOver
 
-
+// ------------------------------------------------------------------------------------------------
+// Handle explosions and scoring between player-hazard and shot-hazard collisions. 
+// ------------------------------------------------------------------------------------------------
 type DestroyByContact() =
     inherit MonoBehaviour()
 
