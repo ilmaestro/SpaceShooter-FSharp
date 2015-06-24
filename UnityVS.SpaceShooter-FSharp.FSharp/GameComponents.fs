@@ -58,33 +58,27 @@ type PlayerController() =
     member this.FixedUpdate() =
         fixedEvt.Trigger(Time.deltaTime)
 
-    member this.StartAsync() = Async.AwaitEvent startEvt.Publish
-    member this.FixedUpdateAsync() = Async.AwaitEvent fixedEvt.Publish
-    member this.FireAsync() = Async.AwaitEvent fireEvt.Publish
-
     member this.Awake() =
         let transform = this.GetComponent<Transform>()
         let rigidbody = this.GetComponent<Rigidbody>()
         //start the fixed update workflow
         let fixedWF = async {
-            do! this.StartAsync()
-            let playerCtrlr = GameLogic.playerControl rigidbody this.boundary this.speed this.tilt
+            do! Async.AwaitEvent startEvt.Publish
             let rec gameloop() = async {
-                let! deltaTime = this.FixedUpdateAsync()
-                let (pos, vel, rot) = playerCtrlr deltaTime
-                rigidbody.position <- pos
-                rigidbody.velocity <- vel
-                rigidbody.rotation <- rot
+                let! deltaTime = Async.AwaitEvent fixedEvt.Publish
+                rigidbody.position <- GameLogic.playerPosition rigidbody this.boundary
+                rigidbody.velocity <- GameLogic.playerVelocity rigidbody this.speed deltaTime
+                rigidbody.rotation <- GameLogic.playerRotation rigidbody this.tilt
                 return! gameloop()
             }
             return! gameloop()
         }
         //start the Firing workflow
         let fireWF = async {
-            do! this.StartAsync()
+            do! Async.AwaitEvent startEvt.Publish
             let fireCtrlr = GameLogic.playerFire this.shot this.shotSpawn this.fireRate
             let rec fireloop(nextFire) = async {
-                let! time = this.FireAsync()
+                let! time = Async.AwaitEvent fireEvt.Publish
                 let nextfiretime = fireCtrlr time nextFire
                 return! fireloop(nextfiretime)
             }
@@ -190,15 +184,18 @@ type DestroyByContact() =
         match other.tag with
         | "Boundary" -> ()
         | "Hazard" -> ()
-        | "Player" ->
-            gameController.PlayerDestroyed()
-            GameObject.Instantiate(this.playerExplosion, other.transform.position, other.transform.rotation) |> ignore
-            GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
-            GameObject.Destroy(other.gameObject)
-            GameObject.Destroy(this.gameObject)
-        | _ ->
-            gameController.DestroyedHazard(this.scorePoints)
-            GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
-            GameObject.Destroy(other.gameObject)
-            GameObject.Destroy(this.gameObject)
+        | "Player" -> this.playerHazardCollision(other)
+        | _ -> this.shotHazardCollision(other)
 
+    member this.shotHazardCollision(other : Collider) =
+        gameController.DestroyedHazard(this.scorePoints)
+        GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
+        GameObject.Destroy(other.gameObject)
+        GameObject.Destroy(this.gameObject)
+
+    member this.playerHazardCollision(other : Collider) =
+        gameController.PlayerDestroyed()
+        GameObject.Instantiate(this.playerExplosion, other.transform.position, other.transform.rotation) |> ignore
+        GameObject.Instantiate(this.explosion, this.transform.position, this.transform.rotation) |> ignore
+        GameObject.Destroy(other.gameObject)
+        GameObject.Destroy(this.gameObject)

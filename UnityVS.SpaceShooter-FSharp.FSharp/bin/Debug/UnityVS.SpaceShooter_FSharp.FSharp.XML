@@ -230,11 +230,45 @@
 <member name="">
 
 </member>
-<member name="">
-
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.spawnWaves(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit},System.Int32,System.Single,System.Single,System.Single,Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,System.Boolean},Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Lazily evaluate the game state and spawn waves based on timing
+</summary>
 </member>
-<member name="">
-
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.randomSpawner(UnityEngine.GameObject,System.Single,System.Single,System.Single)">
+<summary>
+ Randomly instantiate a hazard within a given random range
+</summary>
+</member>
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.playerFire(UnityEngine.GameObject,UnityEngine.Transform,System.Single,System.Single,System.Single)">
+<summary>
+ Instantiate SHOT and calculate next fire time
+</summary>
+</member>
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.playerRotation(UnityEngine.Rigidbody,System.Single)">
+<summary>
+ rotation based on x velocity and tilt amount
+</summary>
+</member>
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.playerVelocity(UnityEngine.Rigidbody,System.Single,System.Single)">
+<summary>
+ speed and deltaTime to Input axis&apos;
+</summary>
+</member>
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.playerPosition(UnityEngine.Rigidbody,UnityVS.SpaceShooter_FSharp.FSharp.GameTypes.Vector3Boundary)">
+<summary>
+ boundary to current position
+</summary>
+</member>
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.getMovement">
+<summary>
+ Take current input and return a Vector3
+</summary>
+</member>
+<member name="M:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic.clampPosition``2(UnityEngine.Vector3,System.Single,System.Single,``0,``1,System.Single,System.Single)">
+<summary>
+ Clamp the position within the defined x &amp; z boundary
+</summary>
 </member>
 <member name="T:UnityVS.SpaceShooter_FSharp.FSharp.GameLogic">
 
